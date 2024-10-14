@@ -15,15 +15,15 @@ STANDING_CHOICES = [
 
 
 class Classes(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    cSCI_Alphanumeric = models.CharField(max_length=100, unique=True)
     class_title = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
-        return self.name
+        return self.cSCI_Alphanumeric
 
     def clean(self):
         pattern = r'^CSCI \d{3}$'
-        if not re.match(pattern, self.name):
+        if not re.match(pattern, self.cSCI_Alphanumeric):
             raise ValidationError(
                 gettext_lazy('Class name must be in the form "CSCI ###" where ### is a three-digit number.'),
                 code='invalid'
@@ -38,16 +38,17 @@ class CustomUser(AbstractUser):
     tutoring_classes = models.ManyToManyField(
         Classes,
         blank=True,
-        help_text="Classes that the tutor is able to tutor"
+        help_text="Classes that the tutor is able to tutor (Hold down Control/Command to select more than one)"
     )
-    last_name = models.CharField(
-        max_length=50,
-        help_text="Last name of the tutor"
-    )
-
+    
     first_name = models.CharField(
         max_length=50,
         help_text="First name of the tutor"
+    )
+    
+    last_name = models.CharField(
+        max_length=50,
+        help_text="Last name of the tutor"
     )
 
     credit_standing = models.CharField(

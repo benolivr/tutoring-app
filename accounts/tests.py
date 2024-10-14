@@ -5,8 +5,8 @@ from .models import Classes
 class CustomUserTests(TestCase):
 
     def setUp(self):
-        self.class1 = Classes.objects.create(name="CSCI 101", class_title="Introduction to Computer Science")
-        self.class2 = Classes.objects.create(name="CSCI 102", class_title="Data Structures")
+        self.class1 = Classes.objects.create(cSCI_Alphanumeric="CSCI 101", class_title="Introduction to Computer Science")
+        self.class2 = Classes.objects.create(cSCI_Alphanumeric="CSCI 102", class_title="Data Structures")
 
     def test_create_user(self):
         User = get_user_model()
