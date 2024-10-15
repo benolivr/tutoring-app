@@ -1,17 +1,63 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% load dict_filters %}
 
 {% block title %}Home{% endblock title %}
-
 {% block content %}
-{% if user.is_authenticated %}
-Hi, {{ user.first_name }} {{ user.last_name }}!
-<form action="{% url 'logout' %}" method="post">
-  {% csrf_token %}
-  <button class="btn btn-success ms-2" type="submit">Log Out</button>
-</form>
-{% else %}
-<p>You are not logged in</p>
-<a href="{% url 'login' %}">Log In</a> |
-<a href="{% url 'signup' %}">Sign Up</a>
-{% endif %}
-{% endblock content %}
+<h1>Tutoring Schedule</h1>
+<style>
+    .schedule-table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    .schedule-table th, .schedule-table td {
+        border: 1px solid #ddd;
+        text-align: center;
+        vertical-align: middle;
+    }
+    .schedule-table th.time-column, .schedule-table td.time-column {
+        width: 7.5%;
+        height: max-content;
+    }
+    .schedule-table th, .schedule-table td {
+        width: 18.5%;
+        height: max-content;
+    }
+
+    .schedule-table tr {
+        height: max-content;
+    }
+</style>
+<table class="table schedule-table">
+    <thead>
+        <tr>
+            <th class="time-column">Time</th>
+            {% for day in schedule %}
+            <th>{{ day }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for time in schedule.Monday %}
+        <tr>
+            <td class="time-column">{{ time }}</td>
+            {% for day in schedule %}
+            <td>
+                {% with slots=schedule|dict_get:day %}
+                    {% with tas=slots|dict_get:time %}
+                        {% if tas %}
+                            {% for ta in tas %}
+                            <a href="{% url 'ta_detail' ta.id %}">{{ ta.first_name }} {{ ta.last_name }}</a><br>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Empty cell -->
+                        {% endif %}
+                    {% endwith %}
+                {% endwith %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
