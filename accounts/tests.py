@@ -47,3 +47,48 @@ class CustomUserTests(TestCase):
         self.assertEqual(admin_user.credit_standing, 'senior')
         self.assertTrue(admin_user.is_staff)
         self.assertTrue(admin_user.is_superuser)
+
+    def test_update_user(self):
+        User = get_user_model()
+        user = User.objects.create_user(
+            username='testuser',
+            password='password123',
+            first_name='Test',
+            last_name='User',
+            email='testuser@example.com',
+            credit_standing='freshman'
+        )
+        user.first_name = 'Updated'
+        user.save()
+
+        updated_user = User.objects.get(username='testuser')
+        self.assertEqual(updated_user.first_name, 'Updated')
+
+    def test_delete_user(self):
+        User = get_user_model()
+        user = User.objects.create_user(
+            username='testuser',
+            password='password123',
+            first_name='Test',
+            last_name='User',
+            email='testuser@example.com',
+            credit_standing='freshman'
+        )
+        user_id = user.id
+        user.delete()
+
+        with self.assertRaises(User.DoesNotExist):
+            User.objects.get(id=user_id)
+
+    def test_user_authentication(self):
+        User = get_user_model()
+        user = User.objects.create_user(
+            username='testuser',
+            password='password123',
+            first_name='Test',
+            last_name='User',
+            email='testuser@example.com',
+            credit_standing='freshman'
+        )
+
+        self.assertTrue(self.client.login(username='testuser', password='password123'))

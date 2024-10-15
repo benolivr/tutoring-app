@@ -1,12 +1,31 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
-
+{% load crispy_forms_tags dict_filters %}
 {% block content %}
 <h1>Add Tutoring Hours</h1>
 <form method="post">
     {% csrf_token %}
-    {{ form|crispy }}
-    <p>Enter time in the form HH:MM and in 24 hour time.</p>
+    <table class="table schedule-table">
+        <thead>
+            <tr>
+                <th class="time-column">Time</th>
+                {% for day in days %}
+                <th>{{ day }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for time in times %}
+            <tr>
+                <td class="time-column">{{ time }}</td>
+                {% for day in days %}
+                <td>
+                    <input type="checkbox" name="availability" value="{{ day }}_{{ time }}" {% if day in schedule and time in schedule|dict_get:day %}checked{% endif %}>
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
     <button type="submit" class="btn btn-primary">Add Hours</button>
 </form>
 {% endblock %}

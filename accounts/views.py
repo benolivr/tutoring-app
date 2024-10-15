@@ -3,6 +3,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+import datetime
 
 from .forms import CustomUserCreationForm, TutoringHourForm, UpdateClassesForm
 from .models import CustomUser, TutoringHour
@@ -35,18 +36,34 @@ class HomeView(TemplateView):
         context['schedule'] = schedule
         return context
 
+
+
 @login_required
 def add_hours(request):
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    times = [f"{hour:02d}:00" for hour in range(7, 21)]
+    schedule = {day: [] for day in days}
+
     if request.method == 'POST':
-        form = TutoringHourForm(request.POST)
-        if form.is_valid():
-            tutoring_hour = form.save(commit=False)
-            tutoring_hour.user = request.user
-            tutoring_hour.save()
-            return redirect('home')
+        TutoringHour.objects.filter(user=request.user).delete()
+        availability = request.POST.getlist('availability')
+        for slot in availability:
+            day, time = slot.split('_')
+            hour = datetime.datetime.strptime(time, "%H:%M").time()
+            TutoringHour.objects.create(user=request.user, day=day, hour=hour)
+        return redirect('home')
     else:
-        form = TutoringHourForm()
-    return render(request, 'add_hours.html', {'form': form})
+        existing_hours = TutoringHour.objects.filter(user=request.user)
+        for hour in existing_hours:
+            time_str = hour.hour.strftime("%H:%M")
+            schedule[hour.day].append(time_str)
+
+    context = {
+        'days': days,
+        'times': times,
+        'schedule': schedule,
+    }
+    return render(request, 'add_hours.html', context)
 
 def ta_detail(request, pk):
     ta = CustomUser.objects.get(pk=pk)
