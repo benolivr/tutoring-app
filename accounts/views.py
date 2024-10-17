@@ -67,7 +67,8 @@ def add_hours(request):
 
 def ta_detail(request, pk):
     ta = CustomUser.objects.get(pk=pk)
-    return render(request, 'ta_detail.html', {'ta': ta})
+    classes = ta.tutoring_classes.all().order_by('cSCI_Alphanumeric')
+    return render(request, 'ta_detail.html', {'ta': ta, 'classes': classes})
 
 
 @method_decorator(login_required, name='dispatch')

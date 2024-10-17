@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>{{ ta.first_name }} {{ ta.last_name }}</h1>
-<p>Username: {{ta.username}}</p>
+<p>Username: {{ ta.username }}</p>
 <p>Year in School: {{ ta.credit_standing }}</p>
 <h2>Classes</h2>
 <ul>
-    {% for class in ta.tutoring_classes.all %}
+    {% for class in classes %}
     <li>{{ class.cSCI_Alphanumeric }}, {{ class.class_title }}</li>
     {% endfor %}
 </ul>
