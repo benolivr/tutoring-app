@@ -36,26 +36,24 @@ class HomeView(TemplateView):
         context['schedule'] = schedule
         return context
 
-
-
 @login_required
 def add_hours(request):
     days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-    times = [f"{hour:02d}:00" for hour in range(7, 21)]
+    times = [time.strftime("%I:%M %p").lstrip('0') for time in [datetime.time(hour) for hour in range(7, 21)]]
     schedule = {day: [] for day in days}
 
     if request.method == 'POST':
         TutoringHour.objects.filter(user=request.user).delete()
         availability = request.POST.getlist('availability')
         for slot in availability:
-            day, time = slot.split('_')
-            hour = datetime.datetime.strptime(time, "%H:%M").time()
+            day, time_str = slot.split('_')
+            hour = datetime.datetime.strptime(time_str, "%I:%M %p").time()
             TutoringHour.objects.create(user=request.user, day=day, hour=hour)
         return redirect('home')
     else:
         existing_hours = TutoringHour.objects.filter(user=request.user)
         for hour in existing_hours:
-            time_str = hour.hour.strftime("%H:%M")
+            time_str = hour.hour.strftime("%I:%M %p").lstrip('0')
             schedule[hour.day].append(time_str)
 
     context = {
@@ -80,3 +78,20 @@ class UpdateClassesView(UpdateView):
 
     def get_object(self):
         return self.request.user
+
+@login_required
+def test_view(request):
+    users = CustomUser.objects.all()
+    user_data = []
+
+    for user in users:
+        tutoring_hours = TutoringHour.objects.filter(user=user)
+        user_data.append({
+            'user': user,
+            'tutoring_hours': tutoring_hours,
+        })
+
+    context = {
+        'user_data': user_data,
+    }
+    return render(request, 'test.html', context)
